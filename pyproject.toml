@@ -1,0 +1,4 @@
+# Solo configuración de herramientas; el proyecto no se empaqueta con pip.
+[tool.pytest.ini_options]
+testpaths = ["server/tests"]
+pythonpath = ["."]

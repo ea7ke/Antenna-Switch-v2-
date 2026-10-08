@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+# Configuración local (la plantilla es config/antenna.toml.example)
+config/antenna.toml
+*.db
+*.db-wal
+*.db-shm

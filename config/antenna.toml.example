@@ -1,0 +1,74 @@
+# antenna-switchd — configuración (Fase 1)
+# Copiar a /etc/antenna/antenna.toml y ajustar.
+#
+# El mapa de pines es el MISMO que usa v1 (antenna-switch-control): el hardware
+# no se toca. Números en BCM, no en pin físico.
+
+[server]
+# La Fase 1 NO tiene autenticación ni TLS (llegan en la Fase 2).
+# Mientras tanto, mantener en 127.0.0.1, o abrir solo a la LAN del club y
+# restringir el acceso con cortafuegos. Nunca exponer a Internet.
+host = "127.0.0.1"
+port = 8000
+
+[gpio]
+# "pigpio"    -> Raspberry Pi real (requiere pigpiod en marcha)
+# "simulated" -> sin hardware, para desarrollo y pruebas en un PC
+backend = "pigpio"
+
+# Polaridad lógica de los módulos de relé.
+#   true  -> nivel ALTO en el GPIO cierra el relé (así trabaja v1: pigs w <pin> 1)
+#   false -> nivel BAJO cierra el relé
+# Si cambias el puente de polaridad en la placa del módulo, cambia este valor
+# Y la línea gpio= de /boot/firmware/config.txt (ver README).
+active_high = true
+
+# Pausa entre abrir el relé anterior y cerrar el nuevo (break-before-make).
+dead_time_ms = 150
+
+# Si una maniobra tarda más que esto, se abre todo y se marca FAULT.
+maneuver_timeout_ms = 2000
+
+[radios]
+R1 = "IC-7610"   # puesto 1
+R2 = "TS-950"    # puesto 2
+
+# Cada antena tiene un relé por radio: gpio_r1 la conecta a la radio 1 y
+# gpio_r2 a la radio 2. Los 12 pines deben ser distintos.
+# Opcionales: bands, notes, maintenance (true = fuera de servicio).
+
+[[antenna]]
+id = 1
+name = "10m Yagi"
+gpio_r1 = 2
+gpio_r2 = 8
+
+[[antenna]]
+id = 2
+name = "15m Yagi"
+gpio_r1 = 3
+gpio_r2 = 9
+
+[[antenna]]
+id = 3
+name = "20m Yagi"
+gpio_r1 = 4
+gpio_r2 = 10
+
+[[antenna]]
+id = 4
+name = "40m Dipolo"
+gpio_r1 = 5
+gpio_r2 = 11
+
+[[antenna]]
+id = 5
+name = "80m Dipolo"
+gpio_r1 = 6
+gpio_r2 = 12
+
+[[antenna]]
+id = 6
+name = "160m L Inv"
+gpio_r1 = 7
+gpio_r2 = 13
