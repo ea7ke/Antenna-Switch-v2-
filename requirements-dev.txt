@@ -1,0 +1,4 @@
+-r requirements.txt
+# Solo para los tests de la API (fastapi.testclient). El resto de tests no necesita nada.
+httpx>=0.27
+pytest>=8

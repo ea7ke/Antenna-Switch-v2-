@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conmutador de antenas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Conmutador de antenas 6×2</h1>
+    <span id="conn" class="badge" role="status">Conectando…</span>
+  </header>
+
+  <div id="fault" class="banner fault" role="alert" hidden></div>
+  <div id="msg" class="banner msg" role="alert" hidden></div>
+
+  <main id="panels"></main>
+
+  <footer>
+    <button id="emergency" class="emergency" type="button">
+      Parada de emergencia: soltar todas las antenas
+    </button>
+    <p id="status" class="status"></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

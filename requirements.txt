@@ -1,0 +1,8 @@
+# Dependencias de ejecución (Raspberry Pi y PC).
+# websockets se pide explícito en lugar de uvicorn[standard]: este último arrastra
+# extensiones en C (uvloop, httptools) que pueden no tener rueda para la Pi.
+fastapi>=0.110
+uvicorn>=0.29
+websockets>=12
+pigpio>=1.78
+tomli>=2.0; python_version < "3.11"

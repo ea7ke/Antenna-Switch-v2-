@@ -1,0 +1,38 @@
+[Unit]
+Description=Conmutador de antenas 6x2 (antenna-switchd)
+Documentation=https://github.com/ea7ke/Antenna-Switch-v2-
+# pigpiod es el demonio que mueve los GPIO. Wants (no Requires): si pigpiod se
+# cae, no queremos que systemd pare este servicio en silencio; el watchdog
+# interno lo reinicia (ver sdnotify / systemd_heartbeat).
+After=network.target pigpiod.service
+Wants=pigpiod.service
+
+[Service]
+Type=notify
+NotifyAccess=main
+User=antenna
+Group=antenna
+WorkingDirectory=/opt/antenna-switch
+ExecStart=/opt/antenna-switch/venv/bin/python -m server --config /etc/antenna/antenna.toml
+
+# Un solo proceso dueño del GPIO; si cae, vuelve a arrancar y deja todo en estado seguro.
+Restart=always
+RestartSec=5
+WatchdogSec=30
+
+# Directorio de estado (/var/lib/antenna) creado y propiedad de 'antenna'.
+StateDirectory=antenna
+
+# Endurecimiento: el servicio no necesita más que hablar con pigpiod en localhost.
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target
