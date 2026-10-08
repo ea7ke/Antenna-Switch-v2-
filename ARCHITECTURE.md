@@ -51,17 +51,20 @@ Si los GPIO glitchean al bootear, los relés chasquean con las radios conectadas
 En `/boot/firmware/config.txt`:
 ```
 # Estado seguro de los 12 relés desde el primer instante del arranque.
-# Usar 'dh' si los módulos son ACTIVO-BAJO, 'dl' si son ACTIVO-ALTO.
-gpio=2,3,4,5,6,7,8,9,10,11,12,13=op,dh
+# Usar 'dl' (nivel bajo) si los módulos son ACTIVO-ALTO, 'dh' si son ACTIVO-BAJO.
+# v1 trabaja como activo-alto (escribe 1 para cerrar), así que aquí va 'dl'.
+gpio=2,3,4,5,6,7,8,9,10,11,12,13=op,dl
 dtparam=watchdog=on
 ```
 
 > **Punto a verificar en el montaje real:** los GPIO **2, 3, 7 y 8** no son pines neutros.
 > BCM2/BCM3 llevan pull-ups de 1,8 kΩ soldadas en la placa (bus I2C) y BCM7/BCM8 son SPI CE1/CE0,
-> que el firmware deja **en alto** durante el arranque. Si los módulos de relé son *activo-alto*,
-> cuatro relés se activan solos durante unos segundos en cada arranque. Comprobar la polaridad de
-> los módulos antes de nada; si son activo-alto, la línea `gpio=` de arriba lo corrige, pero
-> conviene documentarlo en el README porque una reinstalación limpia sin ese ajuste reintroduce el fallo.
+> que el firmware deja **en alto** durante el arranque. Además, según la hoja de datos del BCM2835
+> los GPIO 0 a 8 arrancan con pull-up interno, es decir, también BCM4, 5 y 6 (dato recordado de
+> memoria: comprobar con un polímetro). Si los módulos de relé son *activo-alto*, varios relés
+> pueden activarse solos durante unos segundos en cada arranque, según el circuito de entrada de
+> cada módulo. La línea `gpio=` de arriba lo corrige, pero conviene documentarlo en el README
+> porque una reinstalación limpia sin ese ajuste reintroduce el fallo.
 
 ### Estado seguro
 El estado seguro es **NONE en ambas radios** (todos los relés abiertos, radios sin antena).
@@ -387,11 +390,14 @@ hay que parar Apache antes de la primera prueba real con relés).
 
 ## 12. Supuestos a confirmar antes de escribir código
 
-1. **Polaridad de los módulos de relé**: ¿activo-alto o activo-bajo? Determina la línea `gpio=` de
-   `config.txt` y el `active_high` de la capa GPIO. Un error aquí activa relés al arrancar.
-2. **El conmutador 6×2 en sí**: ¿tiene interlock propio (imposibilidad mecánica/eléctrica de que dos
-   radios compartan antena) o la exclusividad depende **solo** del software? Si es lo segundo, el §1
-   pasa de importante a crítico.
+1. ~~**Polaridad de los módulos de relé**~~ **Resuelto en la práctica:** v1 escribe `1` para cerrar
+   y `0` para abrir (`pigs w <pin> 1/0`), luego la lógica efectiva es **activo-alto**. La polaridad
+   es configurable por software (`active_high` en `antenna.toml`) y, si se cambia el puente de la
+   placa del módulo, basta con cambiar ese valor y la línea `gpio=` de `config.txt`. Pendiente
+   solo comprobar con un polímetro el nivel de los pines durante el arranque.
+2. ~~**El conmutador 6×2 en sí**~~ **Resuelto:** no tiene interlock hardware; la exclusividad
+   depende **solo** del software. El §1 es, por tanto, crítico. v1 tampoco la garantizaba: solo
+   limitaba una antena por panel, sin comprobar el otro panel.
 3. **Modelo exacto de Raspberry Pi** y versión de Raspberry Pi OS (pigpio vs lgpio en Bookworm).
 4. **¿Sigue habiendo botones físicos en GPIO?** En la azotea no tienen uso; si están, sus pines
    quedan libres y sirven como realimentación de estado de relés (fase 5).
